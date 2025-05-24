@@ -2,9 +2,9 @@ import { GalleryVerticalEnd } from "lucide-react";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
-import { SignIn } from "@clerk/nextjs";
+import { SignUp } from "@clerk/nextjs";
 
-export default async function LoginPage() {
+export default async function SignUpPage() {
   const { userId } = await auth();
 
   // If user is already signed in, redirect to main app
@@ -25,7 +25,7 @@ export default async function LoginPage() {
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
-            <SignIn
+            <SignUp
               routing="hash"
               appearance={{
                 elements: {
