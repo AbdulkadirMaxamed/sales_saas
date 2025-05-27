@@ -1,13 +1,12 @@
+// dashboard/page.tsx
 import { redirect } from "next/navigation";
-import { auth, currentUser } from "@clerk/nextjs/server";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { currentUser } from "@clerk/nextjs/server";
 
-export default async function Home() {
-  const { userId } = await auth();
+export default async function DashboardPage() {
   const user  = await currentUser();
 
   // If user is not signed in, redirect to login
-  if (!userId) {
+  if (!user) {
     redirect("/login");
   }
 
