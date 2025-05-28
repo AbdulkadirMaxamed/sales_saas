@@ -1,10 +1,9 @@
 import { redirect } from "next/navigation";
 import { auth, currentUser } from "@clerk/nextjs/server";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 export default async function Home() {
   const { userId } = await auth();
-  const user  = await currentUser();
+  const user = await currentUser();
 
   // If user is not signed in, redirect to login
   if (!userId) {
@@ -16,7 +15,8 @@ export default async function Home() {
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
         <h1 className="text-4xl font-bold">Welcome to Sales SaaS!</h1>
         <p className="text-lg text-muted-foreground">
-          You are successfully signed in. This is your protected dashboard {user?.firstName}.
+          You are successfully signed in. This is your protected dashboard{" "}
+          {user?.firstName}.
         </p>
       </main>
     </div>
