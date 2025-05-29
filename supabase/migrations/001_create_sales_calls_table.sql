@@ -19,12 +19,8 @@ CREATE INDEX IF NOT EXISTS sales_calls_user_id_idx ON public.sales_calls(user_id
 -- Create index on date for sorting
 CREATE INDEX IF NOT EXISTS sales_calls_date_idx ON public.sales_calls(date DESC);
 
--- Enable Row Level Security (RLS)
-ALTER TABLE public.sales_calls ENABLE ROW LEVEL SECURITY;
-
--- Create policy to ensure users can only access their own data
-CREATE POLICY "Users can only access their own sales calls" ON public.sales_calls
-FOR ALL USING (auth.uid()::text = user_id);
+-- Note: RLS is disabled for this setup since we use Clerk for authentication
+-- All authorization is handled in server actions by filtering with Clerk user_id
 
 -- Create updated_at trigger function
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -36,6 +32,7 @@ END;
 $$ language 'plpgsql';
 
 -- Create trigger to automatically update updated_at
+DROP TRIGGER IF EXISTS update_sales_calls_updated_at ON public.sales_calls;
 CREATE TRIGGER update_sales_calls_updated_at 
   BEFORE UPDATE ON public.sales_calls 
   FOR EACH ROW 

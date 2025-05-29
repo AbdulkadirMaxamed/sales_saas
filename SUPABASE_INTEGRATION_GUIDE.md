@@ -58,12 +58,17 @@ Execute the SQL in `/setup-database.sql` in your Supabase dashboard:
 3. Copy and paste the contents of `setup-database.sql`
 4. Execute the query
 
+**If you encounter RLS (Row Level Security) errors:**
+
+- Execute the SQL in `/fix-rls-issue.sql` to disable RLS
+- Our implementation uses server-side authorization with Clerk instead
+
 This will create:
 
 - `sales_calls` table with proper schema
-- Row Level Security (RLS) policies
 - Performance indexes
 - Auto-updating `updated_at` trigger
+- Proper authorization handled by server actions
 
 ### 2. Environment Variables
 
@@ -173,6 +178,28 @@ CREATE TABLE sales_calls (
 - **Loading Indicators**: Visual feedback for async operations
 - **Empty States**: Helpful guidance when no data exists
 - **Form Validation**: Client-side validation for better UX
+
+## 🛠️ Troubleshooting
+
+### RLS Policy Error
+
+If you see an error like `"new row violates row-level security policy for table 'sales_calls'"`:
+
+1. **Run the fix script**: Execute `/fix-rls-issue.sql` in your Supabase SQL editor
+2. **Verify RLS is disabled**: The table should be accessible without RLS restrictions
+3. **Security note**: Our server actions handle authorization by filtering with Clerk user IDs
+
+### Authentication Issues
+
+- Ensure Clerk is properly configured and users are authenticated
+- Check that `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are set
+- Verify the middleware is processing both Clerk and Supabase auth correctly
+
+### Database Connection
+
+- Confirm Supabase project is active and accessible
+- Test connection by running a simple query in the Supabase dashboard
+- Check that the `sales_calls` table exists and has the correct schema
 
 ## 📝 Notes
 
