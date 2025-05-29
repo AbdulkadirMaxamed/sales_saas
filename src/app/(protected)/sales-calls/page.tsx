@@ -1,28 +1,17 @@
 import { auth } from "@clerk/nextjs/server";
 import {
-    Activity,
-    CheckCircle,
-    Clock,
-    Loader2,
-    Phone,
-    TrendingUp,
-    User,
+  Activity,
+  CheckCircle,
+  Clock,
+  Loader2,
+  Phone,
+  TrendingUp,
+  User,
 } from "lucide-react";
 import { redirect } from "next/navigation";
-
-// Mock data for sales calls - replace with real data from your database
-const salesCalls = [
-  {
-    id: 1,
-    date: "2025-05-28",
-    time: "14:30",
-    customer: "Acme Corp",
-    duration: "45 min",
-    sentiment: "Positive",
-    aiProcessingProgress: 100,
-    status: "Complete",
-  },
-];
+import { getSalesCalls } from "@/lib/actions/sales-calls";
+import { AddSalesCallDialog } from "@/components/sales-calls/add-sales-call-dialog";
+import { SalesCallActions } from "@/components/sales-calls/sales-call-actions";
 
 function getSentimentBadge(sentiment: string) {
   switch (sentiment.toLowerCase()) {
@@ -88,14 +77,40 @@ export default async function SalesCallsPage() {
     redirect("/login");
   }
 
+  // Fetch sales calls data
+  const salesCalls = await getSalesCalls();
+
+  // Calculate statistics
+  const totalCalls = salesCalls.length;
+  const completedCalls = salesCalls.filter(
+    (call) => call.status === "Complete",
+  ).length;
+  const positiveCalls = salesCalls.filter(
+    (call) => call.sentiment.toLowerCase() === "positive",
+  ).length;
+  const positiveRate =
+    totalCalls > 0 ? Math.round((positiveCalls / totalCalls) * 100) : 0;
+  const avgDuration =
+    totalCalls > 0
+      ? Math.round(
+          salesCalls.reduce((acc, call) => {
+            const duration = parseInt(call.duration.replace(/\D/g, "")) || 0;
+            return acc + duration;
+          }, 0) / totalCalls,
+        )
+      : 0;
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Sales Calls</h1>
-        <p className="text-muted-foreground">
-          Track and analyze your sales conversations
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Sales Calls</h1>
+          <p className="text-muted-foreground">
+            Track and analyze your sales conversations
+          </p>
+        </div>
+        <AddSalesCallDialog />
       </div>
 
       {/* Stats */}
@@ -105,7 +120,7 @@ export default async function SalesCallsPage() {
             <h3 className="tracking-tight text-sm font-medium">Total Calls</h3>
             <Phone className="h-4 w-4 text-muted-foreground" />
           </div>
-          <div className="text-2xl font-bold">{salesCalls.length}</div>
+          <div className="text-2xl font-bold">{totalCalls}</div>
         </div>
 
         <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
@@ -113,7 +128,7 @@ export default async function SalesCallsPage() {
             <h3 className="tracking-tight text-sm font-medium">Avg Duration</h3>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </div>
-          <div className="text-2xl font-bold">39 min</div>
+          <div className="text-2xl font-bold">{avgDuration} min</div>
         </div>
 
         <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
@@ -123,7 +138,7 @@ export default async function SalesCallsPage() {
             </h3>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </div>
-          <div className="text-2xl font-bold">60%</div>
+          <div className="text-2xl font-bold">{positiveRate}%</div>
         </div>
 
         <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
@@ -132,8 +147,7 @@ export default async function SalesCallsPage() {
             <Activity className="h-4 w-4 text-muted-foreground" />
           </div>
           <div className="text-2xl font-bold">
-            {salesCalls.filter((call) => call.status === "Complete").length}/
-            {salesCalls.length}
+            {completedCalls}/{totalCalls}
           </div>
         </div>
       </div>
@@ -161,6 +175,9 @@ export default async function SalesCallsPage() {
                 </th>
                 <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
                   Processing
+                </th>
+                <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+                  Actions
                 </th>
               </tr>
             </thead>
@@ -199,10 +216,13 @@ export default async function SalesCallsPage() {
                   <td className="p-4 align-middle">
                     <div className="w-40">
                       {getProgressIndicator(
-                        call.aiProcessingProgress,
+                        call.ai_processing_progress,
                         call.status,
                       )}
                     </div>
+                  </td>
+                  <td className="p-4 align-middle">
+                    <SalesCallActions salesCall={call} />
                   </td>
                 </tr>
               ))}
@@ -220,6 +240,7 @@ export default async function SalesCallsPage() {
             Your sales calls will appear here once they&apos;re uploaded and
             processed.
           </p>
+          <AddSalesCallDialog />
         </div>
       )}
     </div>
