@@ -1,4 +1,12 @@
-import { Users, TrendingDown, LayoutDashboard, Phone, GraduationCap, BookOpen, Mail, Settings, MessageSquare } from "lucide-react"
+import {
+  Users,
+  LayoutDashboard,
+  Phone,
+  GraduationCap,
+  BookOpen,
+  Mail,
+  Settings,
+} from "lucide-react";
 
 import {
   Sidebar,
@@ -10,10 +18,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { NavUser } from "./nav-user"
-import { currentUser } from "@clerk/nextjs/server"
-
+} from "@/components/ui/sidebar";
+import { NavUser } from "./nav-user";
+import { currentUser } from "@clerk/nextjs/server";
 
 // Menu items.
 const items = [
@@ -43,16 +50,6 @@ const items = [
     icon: BookOpen,
   },
   {
-    title: "Feedback Analysis",
-    url: "#",
-    icon: MessageSquare,
-  },
-  {
-    title: "Churn Analysis",
-    url: "#",
-    icon: TrendingDown,
-  },
-  {
     title: "Account Management",
     url: "#",
     icon: Users,
@@ -62,10 +59,10 @@ const items = [
     url: "#",
     icon: Settings,
   },
-]
+];
 
 export async function AppSidebar() {
-    const user = await currentUser();
+  const user = await currentUser();
 
   return (
     <Sidebar>
@@ -98,5 +95,5 @@ export async function AppSidebar() {
         />
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }
