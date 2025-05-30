@@ -26,13 +26,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MoreHorizontal, Edit, Trash } from "lucide-react";
-import { updateSalesCall, deleteSalesCall } from "@/lib/actions/sales-calls";
-import type { Database } from "@/lib/types/database";
-
-type SalesCall = Database["public"]["Tables"]["sales_calls"]["Row"];
+import {
+  updateSalesCall,
+  deleteSalesCall,
+  type SalesCallWithUser,
+} from "@/lib/actions/sales-calls";
 
 interface SalesCallActionsProps {
-  salesCall: SalesCall;
+  salesCall: SalesCallWithUser;
 }
 
 export function SalesCallActions({ salesCall }: SalesCallActionsProps) {

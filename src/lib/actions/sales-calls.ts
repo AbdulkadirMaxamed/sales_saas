@@ -1,16 +1,21 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { Database } from "@/lib/types/database";
+import { getUsersById, type UserInfo } from "./user-utils";
 
 type SalesCall = Database["public"]["Tables"]["sales_calls"]["Row"];
 type InsertSalesCall = Database["public"]["Tables"]["sales_calls"]["Insert"];
 type UpdateSalesCall = Database["public"]["Tables"]["sales_calls"]["Update"];
 
-export async function getSalesCalls(): Promise<SalesCall[]> {
+export interface SalesCallWithUser extends SalesCall {
+  user?: UserInfo;
+}
+
+export async function getSalesCalls(): Promise<SalesCallWithUser[]> {
   const { userId } = await auth();
 
   if (!userId) {
@@ -18,19 +23,40 @@ export async function getSalesCalls(): Promise<SalesCall[]> {
   }
 
   const supabase = await createClient();
+  const clerkUser = await currentUser();
 
-  const { data, error } = await supabase
-    .from("sales_calls")
-    .select("*")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false });
+  // Check if user is admin based on private metadata
+  const isAdmin = clerkUser?.privateMetadata?.admin === true;
+
+  let query = supabase.from("sales_calls").select("*");
+
+  // If not admin, filter by user_id
+  if (!isAdmin) {
+    query = query.eq("user_id", userId);
+  }
+
+  const { data, error } = await query.order("created_at", { ascending: false });
 
   if (error) {
     console.error("Error fetching sales calls:", error);
     return [];
   }
 
-  return data || [];
+  const salesCalls = data || [];
+
+  // If admin, fetch user information for each call
+  if (isAdmin && salesCalls.length > 0) {
+    const userIds = salesCalls.map((call) => call.user_id);
+    const usersMap = await getUsersById(userIds);
+
+    // Add user information to each sales call
+    return salesCalls.map((call) => ({
+      ...call,
+      user: usersMap.get(call.user_id),
+    }));
+  }
+
+  return salesCalls;
 }
 
 export async function createSalesCall(formData: FormData) {
@@ -120,4 +146,15 @@ export async function deleteSalesCall(id: string) {
   }
 
   revalidatePath("/sales-calls");
+}
+
+export async function getCurrentUserAdmin(): Promise<boolean> {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return false;
+  }
+
+  const clerkUser = await currentUser();
+  return clerkUser?.privateMetadata?.admin === true;
 }

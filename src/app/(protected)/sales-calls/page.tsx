@@ -9,9 +9,10 @@ import {
   User,
 } from "lucide-react";
 import { redirect } from "next/navigation";
-import { getSalesCalls } from "@/lib/actions/sales-calls";
+import { getSalesCalls, getCurrentUserAdmin } from "@/lib/actions/sales-calls";
 import { AddSalesCallDialog } from "@/components/sales-calls/add-sales-call-dialog";
 import { SalesCallActions } from "@/components/sales-calls/sales-call-actions";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 function getSentimentBadge(sentiment: string) {
   switch (sentiment.toLowerCase()) {
@@ -77,8 +78,11 @@ export default async function SalesCallsPage() {
     redirect("/login");
   }
 
-  // Fetch sales calls data
-  const salesCalls = await getSalesCalls();
+  // Fetch sales calls data and check if user is admin
+  const [salesCalls, isAdmin] = await Promise.all([
+    getSalesCalls(),
+    getCurrentUserAdmin(),
+  ]);
 
   // Calculate statistics
   const totalCalls = salesCalls.length;
@@ -167,6 +171,11 @@ export default async function SalesCallsPage() {
                 <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
                   Customer
                 </th>
+                {isAdmin && (
+                  <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+                    User
+                  </th>
+                )}
                 <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
                   Duration
                 </th>
@@ -207,6 +216,34 @@ export default async function SalesCallsPage() {
                       <span className="font-medium">{call.customer}</span>
                     </div>
                   </td>
+                  {isAdmin && (
+                    <td className="p-4 align-middle">
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-6 w-6">
+                          <AvatarImage
+                            src={call.user?.imageUrl}
+                            alt={`${call.user?.firstName} ${call.user?.lastName}`}
+                          />
+                          <AvatarFallback className="text-xs">
+                            {call.user?.firstName?.[0]}
+                            {call.user?.lastName?.[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium">
+                            {call.user?.firstName && call.user?.lastName
+                              ? `${call.user.firstName} ${call.user.lastName}`
+                              : call.user?.emailAddress || "Unknown User"}
+                          </span>
+                          {call.user?.emailAddress && call.user?.firstName && (
+                            <span className="text-xs text-muted-foreground">
+                              {call.user.emailAddress}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                  )}
                   <td className="p-4 align-middle">
                     <span className="text-sm">{call.duration}</span>
                   </td>
