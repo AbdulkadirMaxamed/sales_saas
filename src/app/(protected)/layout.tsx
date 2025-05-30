@@ -1,7 +1,7 @@
 // dashboard/layout.tsx
-import { ClerkProvider } from "@clerk/nextjs";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { ClerkProvider } from "@clerk/nextjs";
 
 export default function DashboardLayout({
   children,
@@ -17,7 +17,6 @@ export default function DashboardLayout({
           <div>{children}</div>
         </SidebarProvider>
       </div>
-      {/* <div className="fixed top-0 right-0 p-4"><UserButton /></div> */}
     </ClerkProvider>
   );
 }
