@@ -31,7 +31,7 @@ const items = [
   },
   {
     title: "Sales Calls",
-    url: "#",
+    url: "/sales-calls",
     icon: Phone,
   },
   {
