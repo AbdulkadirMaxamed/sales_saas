@@ -1,13 +1,11 @@
 import {
-  BookOpen,
-  GraduationCap,
-  LayoutDashboard,
-  Mail,
-  MessageSquare,
-  Phone,
-  Settings,
-  TrendingDown,
   Users,
+  LayoutDashboard,
+  Phone,
+  GraduationCap,
+  BookOpen,
+  Mail,
+  Settings,
 } from "lucide-react";
 
 import {
@@ -21,8 +19,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { currentUser } from "@clerk/nextjs/server";
 import { NavUser } from "./nav-user";
+import { currentUser } from "@clerk/nextjs/server";
 
 // Menu items.
 const items = [
@@ -50,16 +48,6 @@ const items = [
     title: "Playbook & Pitchdecks",
     url: "#",
     icon: BookOpen,
-  },
-  {
-    title: "Feedback Analysis",
-    url: "#",
-    icon: MessageSquare,
-  },
-  {
-    title: "Churn Analysis",
-    url: "#",
-    icon: TrendingDown,
   },
   {
     title: "Account Management",

@@ -10,15 +10,13 @@ export default function DashboardLayout({
 }) {
   return (
     <ClerkProvider>
-      <SidebarProvider>
-        <AppSidebar />
-        <main className="flex-1">
-          <div className="flex h-16 items-center gap-4 border-b bg-background px-4 lg:h-[60px] lg:px-6">
-            <SidebarTrigger />
-          </div>
-          <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">{children}</div>
-        </main>
-      </SidebarProvider>
+      <div className="fixed top-0 left-0 p-4">
+        <SidebarProvider>
+          <AppSidebar />
+          <SidebarTrigger />
+          <div>{children}</div>
+        </SidebarProvider>
+      </div>
     </ClerkProvider>
   );
 }
